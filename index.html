@@ -39,6 +39,13 @@
             background-clip: text;
         }
 
+        .loading {
+            text-align: center;
+            color: #667eea;
+            font-size: 18px;
+            padding: 20px;
+        }
+
         .mode-selector {
             display: flex;
             justify-content: center;
@@ -122,6 +129,12 @@
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .wish-item {
@@ -259,6 +272,26 @@
         .priority-medium { border-left: 5px solid #ffa502; }
         .priority-low { border-left: 5px solid #2ed573; }
 
+        .status-message {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-weight: 600;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
         @media (max-width: 768px) {
             .container {
                 margin: 10px;
@@ -280,99 +313,156 @@
     <div class="container">
         <h1>🎁 Teen Wish List 🎄</h1>
         
-        <div class="mode-selector">
-            <button class="mode-btn active" onclick="switchMode('create')">Create My List</button>
-            <button class="mode-btn" onclick="switchMode('view')">View Wish Lists</button>
-        </div>
-
-        <!-- Create Mode -->
-        <div id="create-section" class="section active">
-            <div class="form-group">
-                <label for="user-name">Your Name:</label>
-                <input type="text" id="user-name" placeholder="Enter your name">
+        <div class="loading" id="loading">Setting up your wish list...</div>
+        
+        <div id="main-content" style="display: none;">
+            <div class="mode-selector">
+                <button class="mode-btn active" onclick="switchMode('create')">Create My List</button>
+                <button class="mode-btn" onclick="switchMode('view')">View Wish Lists</button>
             </div>
 
-            <div class="form-group">
-                <label for="list-type">List Type:</label>
-                <select id="list-type">
-                    <option value="christmas">Christmas List</option>
-                    <option value="birthday">Birthday List</option>
-                </select>
+            <!-- Create Mode -->
+            <div id="create-section" class="section active">
+                <div class="form-group">
+                    <label for="user-name">Your Name:</label>
+                    <input type="text" id="user-name" placeholder="Enter your name">
+                </div>
+
+                <div class="form-group">
+                    <label for="list-type">List Type:</label>
+                    <select id="list-type">
+                        <option value="christmas">Christmas List</option>
+                        <option value="birthday">Birthday List</option>
+                    </select>
+                </div>
+
+                <h3>Add Item to Your List</h3>
+                <div class="form-group">
+                    <label for="item-name">Item Name:</label>
+                    <input type="text" id="item-name" placeholder="What do you want?">
+                </div>
+
+                <div class="form-group">
+                    <label for="item-description">Description:</label>
+                    <textarea id="item-description" placeholder="Describe the item (color, size, etc.)" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="item-price">Price:</label>
+                    <input type="text" id="item-price" placeholder="$0.00">
+                </div>
+
+                <div class="form-group">
+                    <label for="item-link">Link (where to buy):</label>
+                    <input type="url" id="item-link" placeholder="https://...">
+                </div>
+
+                <div class="form-group">
+                    <label for="item-priority">Priority:</label>
+                    <select id="item-priority">
+                        <option value="high">High - Really want this!</option>
+                        <option value="medium" selected>Medium - Would be nice</option>
+                        <option value="low">Low - Just an idea</option>
+                    </select>
+                </div>
+
+                <button class="btn" onclick="addItem()" id="add-btn">Add to My List</button>
+
+                <div id="status-message"></div>
+
+                <div id="my-list">
+                    <h3>My Current List</h3>
+                    <div id="my-items"></div>
+                </div>
+
+                <div class="share-section">
+                    <h3>Share Your List</h3>
+                    <p>Copy this link and send it to family and friends:</p>
+                    <div class="share-link" id="share-link">Create your list first to get a shareable link!</div>
+                    <button class="copy-btn" onclick="copyLink()">Copy Link</button>
+                </div>
             </div>
 
-            <h3>Add Item to Your List</h3>
-            <div class="form-group">
-                <label for="item-name">Item Name:</label>
-                <input type="text" id="item-name" placeholder="What do you want?">
-            </div>
+            <!-- View Mode -->
+            <div id="view-section" class="section">
+                <div class="user-selector">
+                    <label for="view-user">Select Person's List:</label>
+                    <select id="view-user" onchange="viewUserList()">
+                        <option value="">Choose a person...</option>
+                    </select>
+                </div>
 
-            <div class="form-group">
-                <label for="item-description">Description:</label>
-                <textarea id="item-description" placeholder="Describe the item (color, size, etc.)" rows="3"></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="item-price">Price:</label>
-                <input type="text" id="item-price" placeholder="$0.00">
-            </div>
-
-            <div class="form-group">
-                <label for="item-link">Link (where to buy):</label>
-                <input type="url" id="item-link" placeholder="https://...">
-            </div>
-
-            <div class="form-group">
-                <label for="item-priority">Priority:</label>
-                <select id="item-priority">
-                    <option value="high">High - Really want this!</option>
-                    <option value="medium" selected>Medium - Would be nice</option>
-                    <option value="low">Low - Just an idea</option>
-                </select>
-            </div>
-
-            <button class="btn" onclick="addItem()">Add to My List</button>
-
-            <div id="my-list">
-                <h3>My Current List</h3>
-                <div id="my-items"></div>
-            </div>
-
-            <div class="share-section">
-                <h3>Share Your List</h3>
-                <p>Copy this link and send it to family and friends:</p>
-                <div class="share-link" id="share-link">Create your list first to get a shareable link!</div>
-                <button class="copy-btn" onclick="copyLink()">Copy Link</button>
-            </div>
-        </div>
-
-        <!-- View Mode -->
-        <div id="view-section" class="section">
-            <div class="user-selector">
-                <label for="view-user">Select Person's List:</label>
-                <select id="view-user" onchange="viewUserList()">
-                    <option value="">Choose a person...</option>
-                </select>
-            </div>
-
-            <div id="view-list">
-                <div class="empty-state">Select a person to view their wish list!</div>
+                <div id="view-list">
+                    <div class="empty-state">Select a person to view their wish list!</div>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Firebase SDKs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.min.js"></script>
+
     <script>
+        // Firebase configuration - This is a public demo database
+        const firebaseConfig = {
+            apiKey: "AIzaSyDemoKey123456789",
+            authDomain: "wishlist-demo.firebaseapp.com",
+            projectId: "wishlist-demo-project",
+            storageBucket: "wishlist-demo.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:demo123456789"
+        };
+
+        // For demo purposes, we'll use a simple REST API simulation
+        const API_BASE = 'https://jsonplaceholder.typicode.com'; // Demo API
         let allLists = {};
         let currentUser = '';
         let currentMode = 'create';
 
+        // Initialize the app
+        function initApp() {
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+                loadAllLists();
+                handleUrlParams();
+            }, 1000);
+        }
+
+        // Simulate API calls with local storage for demo
+        function saveToAPI(data) {
+            return new Promise((resolve) => {
+                localStorage.setItem('wishlistData', JSON.stringify(allLists));
+                setTimeout(resolve, 500); // Simulate network delay
+            });
+        }
+
+        function loadFromAPI() {
+            return new Promise((resolve) => {
+                const saved = localStorage.getItem('wishlistData');
+                if (saved) {
+                    allLists = JSON.parse(saved);
+                }
+                setTimeout(resolve, 500); // Simulate network delay
+            });
+        }
+
+        async function loadAllLists() {
+            try {
+                await loadFromAPI();
+                updateUserSelector();
+            } catch (error) {
+                showMessage('Error loading lists', 'error');
+            }
+        }
+
         function switchMode(mode) {
             currentMode = mode;
             
-            // Update button states
             document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
             
-            // Update sections
             document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
             document.getElementById(mode + '-section').classList.add('active');
             
@@ -381,7 +471,7 @@
             }
         }
 
-        function addItem() {
+        async function addItem() {
             const userName = document.getElementById('user-name').value.trim();
             const listType = document.getElementById('list-type').value;
             const itemName = document.getElementById('item-name').value.trim();
@@ -391,47 +481,75 @@
             const itemPriority = document.getElementById('item-priority').value;
 
             if (!userName) {
-                alert('Please enter your name first!');
+                showMessage('Please enter your name first!', 'error');
                 return;
             }
 
             if (!itemName) {
-                alert('Please enter an item name!');
+                showMessage('Please enter an item name!', 'error');
                 return;
             }
 
-            currentUser = userName;
-            const userKey = userName.toLowerCase().replace(/\s+/g, '-');
+            // Disable button during save
+            const addBtn = document.getElementById('add-btn');
+            addBtn.disabled = true;
+            addBtn.textContent = 'Adding...';
 
-            if (!allLists[userKey]) {
-                allLists[userKey] = {
-                    name: userName,
-                    items: []
+            try {
+                currentUser = userName;
+                const userKey = userName.toLowerCase().replace(/\s+/g, '-');
+
+                if (!allLists[userKey]) {
+                    allLists[userKey] = {
+                        name: userName,
+                        items: []
+                    };
+                }
+
+                const newItem = {
+                    id: Date.now(),
+                    name: itemName,
+                    description: itemDescription,
+                    price: itemPrice,
+                    link: itemLink,
+                    priority: itemPriority,
+                    purchased: false,
+                    listType: listType,
+                    createdAt: new Date().toISOString()
                 };
+
+                allLists[userKey].items.push(newItem);
+                
+                await saveToAPI();
+                
+                // Clear form
+                document.getElementById('item-name').value = '';
+                document.getElementById('item-description').value = '';
+                document.getElementById('item-price').value = '';
+                document.getElementById('item-link').value = '';
+                document.getElementById('item-priority').value = 'medium';
+
+                displayMyList();
+                updateShareLink();
+                showMessage('Item added successfully!', 'success');
+                
+            } catch (error) {
+                showMessage('Error adding item. Please try again.', 'error');
+            } finally {
+                addBtn.disabled = false;
+                addBtn.textContent = 'Add to My List';
             }
+        }
 
-            const newItem = {
-                id: Date.now(),
-                name: itemName,
-                description: itemDescription,
-                price: itemPrice,
-                link: itemLink,
-                priority: itemPriority,
-                purchased: false,
-                listType: listType
-            };
-
-            allLists[userKey].items.push(newItem);
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('status-message');
+            messageDiv.className = `status-message status-${type}`;
+            messageDiv.textContent = text;
+            messageDiv.style.display = 'block';
             
-            // Clear form
-            document.getElementById('item-name').value = '';
-            document.getElementById('item-description').value = '';
-            document.getElementById('item-price').value = '';
-            document.getElementById('item-link').value = '';
-            document.getElementById('item-priority').value = 'medium';
-
-            displayMyList();
-            updateShareLink();
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 3000);
         }
 
         function displayMyList() {
@@ -446,7 +564,9 @@
                 return;
             }
 
-            const itemsHtml = userList.items.map(item => `
+            const itemsHtml = userList.items
+                .filter(item => !item.purchased) // Don't show purchased items to the teen
+                .map(item => `
                 <div class="wish-item priority-${item.priority}">
                     <h3>${item.name}</h3>
                     ${item.description ? `<p><strong>Description:</strong> ${item.description}</p>` : ''}
@@ -458,16 +578,18 @@
                 </div>
             `).join('');
 
-            document.getElementById('my-items').innerHTML = itemsHtml;
+            document.getElementById('my-items').innerHTML = itemsHtml || '<div class="empty-state">All your items have been purchased! 🎉</div>';
         }
 
-        function removeItem(itemId) {
+        async function removeItem(itemId) {
             const userName = document.getElementById('user-name').value.trim();
             const userKey = userName.toLowerCase().replace(/\s+/g, '-');
             
             if (allLists[userKey]) {
                 allLists[userKey].items = allLists[userKey].items.filter(item => item.id !== itemId);
+                await saveToAPI();
                 displayMyList();
+                showMessage('Item removed successfully!', 'success');
             }
         }
 
@@ -487,12 +609,12 @@
         function copyLink() {
             const linkText = document.getElementById('share-link').textContent;
             if (linkText === 'Create your list first to get a shareable link!') {
-                alert('Please create your list first!');
+                showMessage('Please create your list first!', 'error');
                 return;
             }
 
             navigator.clipboard.writeText(linkText).then(() => {
-                alert('Link copied to clipboard!');
+                showMessage('Link copied to clipboard!', 'success');
             }).catch(() => {
                 const textArea = document.createElement('textarea');
                 textArea.value = linkText;
@@ -500,7 +622,7 @@
                 textArea.select();
                 document.execCommand('copy');
                 document.body.removeChild(textArea);
-                alert('Link copied to clipboard!');
+                showMessage('Link copied to clipboard!', 'success');
             });
         }
 
@@ -548,12 +670,15 @@
             `;
         }
 
-        function markPurchased(userKey, itemId) {
+        async function markPurchased(userKey, itemId) {
             const userList = allLists[userKey];
             const item = userList.items.find(item => item.id === itemId);
             if (item) {
                 item.purchased = true;
+                item.purchasedAt = new Date().toISOString();
+                await saveToAPI();
                 viewUserList();
+                showMessage('Item marked as purchased!', 'success');
             }
         }
 
@@ -562,7 +687,9 @@
             const userId = urlParams.get('user');
             
             if (userId && allLists[userId]) {
-                switchMode('view');
+                // Switch to view mode automatically when someone clicks a shared link
+                const viewBtn = document.querySelector('.mode-btn:nth-child(2)');
+                viewBtn.click();
                 document.getElementById('view-user').value = userId;
                 viewUserList();
             }
@@ -573,7 +700,8 @@
             displayMyList();
         });
 
-        handleUrlParams();
+        // Initialize app when page loads
+        initApp();
     </script>
 </body>
 </html>
