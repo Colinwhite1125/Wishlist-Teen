@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teen Wish List</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>🎁 Wish List 🎄</title>
     <style>
         * {
             margin: 0;
@@ -137,185 +137,73 @@
             transform: none;
         }
 
+        .empty-state {
+            text-align: center;
+            font-style: italic;
+            color: #888;
+            margin-top: 20px;
+        }
+
         .wish-item {
-            background: white;
-            border: 2px solid #f0f0f0;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            transition: all 0.3s ease;
-            position: relative;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #f9f9f9;
         }
 
-        .wish-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        .price {
+            font-weight: 600;
+            color: #444;
         }
 
-        .wish-item.purchased {
-            border-color: #4CAF50;
-            background: linear-gradient(135deg, #f8fff8 0%, #e8f5e8 100%);
-        }
-
-        .wish-item h3 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 1.3em;
-        }
-
-        .wish-item p {
-            color: #666;
-            margin-bottom: 8px;
-        }
-
-        .wish-item .price {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #667eea;
-        }
-
-        .wish-item .link {
+        .link {
             display: inline-block;
-            margin-top: 10px;
-            padding: 8px 16px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
+            margin-top: 8px;
+            color: #667eea;
             text-decoration: none;
-            border-radius: 20px;
-            transition: all 0.3s ease;
         }
 
-        .wish-item .link:hover {
-            transform: scale(1.05);
-        }
-
-        .purchased-badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: #4CAF50;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .mark-purchased {
-            background: #4CAF50;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: all 0.3s ease;
-        }
-
-        .mark-purchased:hover {
-            background: #45a049;
-            transform: scale(1.05);
+        .link:hover {
+            text-decoration: underline;
         }
 
         .share-section {
-            background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
-            border-radius: 15px;
-            padding: 20px;
             margin-top: 30px;
             text-align: center;
         }
 
         .share-link {
-            background: white;
-            border: 2px solid #667eea;
+            background: #eee;
+            padding: 10px;
             border-radius: 10px;
-            padding: 12px;
-            margin: 10px 0;
+            font-family: monospace;
             word-break: break-all;
-            color: #667eea;
-            font-weight: 600;
+            margin-bottom: 10px;
         }
-
-        .copy-btn {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            margin-left: 10px;
-            transition: all 0.3s ease;
-        }
-
-        .copy-btn:hover {
-            background: #5a6fd8;
-        }
-
-        .user-selector {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .user-selector select {
-            max-width: 300px;
-            margin: 0 auto;
-        }
-
-        .empty-state {
-            text-align: center;
-            color: #666;
-            font-style: italic;
-            padding: 40px 20px;
-        }
-
-        .priority-high { border-left: 5px solid #ff4757; }
-        .priority-medium { border-left: 5px solid #ffa502; }
-        .priority-low { border-left: 5px solid #2ed573; }
 
         .status-message {
+            margin-top: 15px;
             text-align: center;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px 0;
             font-weight: 600;
         }
 
         .status-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+            color: green;
         }
 
         .status-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                margin: 10px;
-                padding: 20px;
-            }
-            
-            h1 {
-                font-size: 2em;
-            }
-            
-            .mode-selector {
-                flex-direction: column;
-                align-items: center;
-            }
+            color: red;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🎁 Wish List 🎄</h1>
-        
+
         <div class="loading" id="loading">Setting up your wish list...</div>
-        
-        <div id="main-content" style="display: none;">
+
+        <div id="main-content" style="display:none;">
             <div class="mode-selector">
                 <button class="mode-btn active" onclick="switchMode('create')">Create My List</button>
                 <button class="mode-btn" onclick="switchMode('view')">View Wish Lists</button>
@@ -325,7 +213,7 @@
             <div id="create-section" class="section active">
                 <div class="form-group">
                     <label for="user-name">Your Name:</label>
-                    <input type="text" id="user-name" placeholder="Enter your name">
+                    <input type="text" id="user-name" placeholder="Enter your name" />
                 </div>
 
                 <div class="form-group">
@@ -337,9 +225,10 @@
                 </div>
 
                 <h3>Add Item to Your List</h3>
+
                 <div class="form-group">
                     <label for="item-name">Item Name:</label>
-                    <input type="text" id="item-name" placeholder="What do you want?">
+                    <input type="text" id="item-name" placeholder="What do you want?" />
                 </div>
 
                 <div class="form-group">
@@ -349,12 +238,12 @@
 
                 <div class="form-group">
                     <label for="item-price">Price:</label>
-                    <input type="text" id="item-price" placeholder="$0.00">
+                    <input type="text" id="item-price" placeholder="$0.00" />
                 </div>
 
                 <div class="form-group">
                     <label for="item-link">Link (where to buy):</label>
-                    <input type="url" id="item-link" placeholder="https://...">
+                    <input type="url" id="item-link" placeholder="https://..." />
                 </div>
 
                 <div class="form-group">
@@ -366,207 +255,179 @@
                     </select>
                 </div>
 
-                <button class="btn" onclick="addItem()" id="add-btn">Add to My List</button>
+                <button class="btn" id="add-btn" onclick="addItem()">Add to My List</button>
 
-                <div id="status-message"></div>
+                <div id="status-message" class="status-message"></div>
 
                 <div id="my-list">
                     <h3>My Current List</h3>
-                    <div id="my-items"></div>
+                    <div id="my-items" class="empty-state">No items in your list yet!</div>
                 </div>
 
                 <div class="share-section">
                     <h3>Share Your List</h3>
                     <p>Copy this link and send it to family and friends:</p>
                     <div class="share-link" id="share-link">Create your list first to get a shareable link!</div>
-                    <button class="copy-btn" onclick="copyLink()">Copy Link</button>
+                    <button class="btn" onclick="copyLink()">Copy Link</button>
                 </div>
             </div>
 
             <!-- View Mode -->
             <div id="view-section" class="section">
-                <div class="user-selector">
+                <div class="form-group">
                     <label for="view-user">Select Person's List:</label>
                     <select id="view-user" onchange="viewUserList()">
                         <option value="">Choose a person...</option>
                     </select>
                 </div>
 
-                <div id="view-list">
-                    <div class="empty-state">Select a person to view their wish list!</div>
-                </div>
+                <div id="view-list" class="empty-state">Select a person to view their wish list!</div>
             </div>
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.min.js"></script>
+<script>
+    let allLists = {};
+    let currentUser = '';
+    let currentMode = 'create';
 
-    <script>
-        // Firebase configuration - This is a public demo database
-        const firebaseConfig = {
-            apiKey: "AIzaSyDemoKey123456789",
-            authDomain: "wishlist-demo.firebaseapp.com",
-            projectId: "wishlist-demo-project",
-            storageBucket: "wishlist-demo.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123456789:web:demo123456789"
-        };
+    // Save all lists to localStorage
+    function saveToAPI() {
+        return new Promise((resolve) => {
+            localStorage.setItem('wishlistData', JSON.stringify(allLists));
+            setTimeout(resolve, 100);
+        });
+    }
 
-        // For demo purposes, we'll use a simple REST API simulation
-        const API_BASE = 'https://jsonplaceholder.typicode.com'; // Demo API
-        let allLists = {};
-        let currentUser = '';
-        let currentMode = 'create';
-
-        // Initialize the app
-        function initApp() {
-            setTimeout(() => {
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('main-content').style.display = 'block';
-                loadAllLists();
-                handleUrlParams();
-            }, 1000);
-        }
-
-        // Simulate API calls with local storage for demo
-        function saveToAPI(data) {
-            return new Promise((resolve) => {
-                localStorage.setItem('wishlistData', JSON.stringify(allLists));
-                setTimeout(resolve, 500); // Simulate network delay
-            });
-        }
-
-        function loadFromAPI() {
-            return new Promise((resolve) => {
-                const saved = localStorage.getItem('wishlistData');
-                if (saved) {
-                    allLists = JSON.parse(saved);
-                }
-                setTimeout(resolve, 500); // Simulate network delay
-            });
-        }
-
-        async function loadAllLists() {
-            try {
-                await loadFromAPI();
-                updateUserSelector();
-            } catch (error) {
-                showMessage('Error loading lists', 'error');
+    // Load all lists from localStorage
+    function loadFromAPI() {
+        return new Promise((resolve) => {
+            const saved = localStorage.getItem('wishlistData');
+            if (saved) {
+                allLists = JSON.parse(saved);
             }
+            setTimeout(resolve, 100);
+        });
+    }
+
+    // Show/hide loading, load data, show main content
+    async function initApp() {
+        await loadFromAPI();
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        updateUserSelector();
+        handleUrlParams();
+    }
+
+    // Switch between create/view modes
+    function switchMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
+        document.getElementById(mode + '-section').classList.add('active');
+
+        if (mode === 'view') {
+            updateUserSelector();
+        }
+    }
+
+    // Show messages to user
+    function showMessage(text, type) {
+        const messageDiv = document.getElementById('status-message');
+        messageDiv.className = `status-message status-${type}`;
+        messageDiv.textContent = text;
+        messageDiv.style.display = 'block';
+
+        setTimeout(() => {
+            messageDiv.style.display = 'none';
+        }, 3000);
+    }
+
+    // Add new item to user's list
+    async function addItem() {
+        const userName = document.getElementById('user-name').value.trim();
+        const listType = document.getElementById('list-type').value;
+        const itemName = document.getElementById('item-name').value.trim();
+        const itemDescription = document.getElementById('item-description').value.trim();
+        const itemPrice = document.getElementById('item-price').value.trim();
+        const itemLink = document.getElementById('item-link').value.trim();
+        const itemPriority = document.getElementById('item-priority').value;
+
+        if (!userName) {
+            showMessage('Please enter your name first!', 'error');
+            return;
+        }
+        if (!itemName) {
+            showMessage('Please enter an item name!', 'error');
+            return;
         }
 
-        function switchMode(mode) {
-            currentMode = mode;
-            
-            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
-            document.getElementById(mode + '-section').classList.add('active');
-            
-            if (mode === 'view') {
-                updateUserSelector();
-            }
-        }
+        const addBtn = document.getElementById('add-btn');
+        addBtn.disabled = true;
+        addBtn.textContent = 'Adding...';
 
-        async function addItem() {
-            const userName = document.getElementById('user-name').value.trim();
-            const listType = document.getElementById('list-type').value;
-            const itemName = document.getElementById('item-name').value.trim();
-            const itemDescription = document.getElementById('item-description').value.trim();
-            const itemPrice = document.getElementById('item-price').value.trim();
-            const itemLink = document.getElementById('item-link').value.trim();
-            const itemPriority = document.getElementById('item-priority').value;
-
-            if (!userName) {
-                showMessage('Please enter your name first!', 'error');
-                return;
-            }
-
-            if (!itemName) {
-                showMessage('Please enter an item name!', 'error');
-                return;
-            }
-
-            // Disable button during save
-            const addBtn = document.getElementById('add-btn');
-            addBtn.disabled = true;
-            addBtn.textContent = 'Adding...';
-
-            try {
-                currentUser = userName;
-                const userKey = userName.toLowerCase().replace(/\s+/g, '-');
-
-                if (!allLists[userKey]) {
-                    allLists[userKey] = {
-                        name: userName,
-                        items: []
-                    };
-                }
-
-                const newItem = {
-                    id: Date.now(),
-                    name: itemName,
-                    description: itemDescription,
-                    price: itemPrice,
-                    link: itemLink,
-                    priority: itemPriority,
-                    purchased: false,
-                    listType: listType,
-                    createdAt: new Date().toISOString()
-                };
-
-                allLists[userKey].items.push(newItem);
-                
-                await saveToAPI();
-                
-                // Clear form
-                document.getElementById('item-name').value = '';
-                document.getElementById('item-description').value = '';
-                document.getElementById('item-price').value = '';
-                document.getElementById('item-link').value = '';
-                document.getElementById('item-priority').value = 'medium';
-
-                displayMyList();
-                updateShareLink();
-                showMessage('Item added successfully!', 'success');
-                
-            } catch (error) {
-                showMessage('Error adding item. Please try again.', 'error');
-            } finally {
-                addBtn.disabled = false;
-                addBtn.textContent = 'Add to My List';
-            }
-        }
-
-        function showMessage(text, type) {
-            const messageDiv = document.getElementById('status-message');
-            messageDiv.className = `status-message status-${type}`;
-            messageDiv.textContent = text;
-            messageDiv.style.display = 'block';
-            
-            setTimeout(() => {
-                messageDiv.style.display = 'none';
-            }, 3000);
-        }
-
-        function displayMyList() {
-            const userName = document.getElementById('user-name').value.trim();
-            if (!userName) return;
-
+        try {
+            currentUser = userName;
             const userKey = userName.toLowerCase().replace(/\s+/g, '-');
-            const userList = allLists[userKey];
-            
-            if (!userList || userList.items.length === 0) {
-                document.getElementById('my-items').innerHTML = '<div class="empty-state">No items in your list yet!</div>';
-                return;
+
+            if (!allLists[userKey]) {
+                allLists[userKey] = {
+                    name: userName,
+                    items: []
+                };
             }
 
-            const itemsHtml = userList.items
-                .filter(item => !item.purchased) // Don't show purchased items to the teen
-                .map(item => `
+            const newItem = {
+                id: Date.now(),
+                name: itemName,
+                description: itemDescription,
+                price: itemPrice,
+                link: itemLink,
+                priority: itemPriority,
+                purchased: false,
+                listType: listType,
+                createdAt: new Date().toISOString()
+            };
+
+            allLists[userKey].items.push(newItem);
+
+            await saveToAPI();
+
+            // Clear form
+            document.getElementById('item-name').value = '';
+            document.getElementById('item-description').value = '';
+            document.getElementById('item-price').value = '';
+            document.getElementById('item-link').value = '';
+            document.getElementById('item-priority').value = 'medium';
+
+            displayMyList();
+            updateShareLink();
+            showMessage('Item added successfully!', 'success');
+        } catch {
+            showMessage('Error adding item. Please try again.', 'error');
+        } finally {
+            addBtn.disabled = false;
+            addBtn.textContent = 'Add to My List';
+        }
+    }
+
+    // Display current user's list on page
+    function displayMyList() {
+        const userName = document.getElementById('user-name').value.trim();
+        if (!userName) return;
+
+        const userKey = userName.toLowerCase().replace(/\s+/g, '-');
+        const userList = allLists[userKey];
+
+        if (!userList || userList.items.length === 0) {
+            document.getElementById('my-items').innerHTML = '<div class="empty-state">No items in your list yet!</div>';
+            return;
+        }
+
+        const itemsHtml = userList.items
+            .filter(item => !item.purchased)
+            .map(item => `
                 <div class="wish-item priority-${item.priority}">
                     <h3>${item.name}</h3>
                     ${item.description ? `<p><strong>Description:</strong> ${item.description}</p>` : ''}
@@ -578,130 +439,63 @@
                 </div>
             `).join('');
 
-            document.getElementById('my-items').innerHTML = itemsHtml || '<div class="empty-state">All your items have been purchased! 🎉</div>';
-        }
+        document.getElementById('my-items').innerHTML = itemsHtml || '<div class="empty-state">All your items have been purchased! 🎉</div>';
+    }
 
-        async function removeItem(itemId) {
-            const userName = document.getElementById('user-name').value.trim();
-            const userKey = userName.toLowerCase().replace(/\s+/g, '-');
-            
-            if (allLists[userKey]) {
-                allLists[userKey].items = allLists[userKey].items.filter(item => item.id !== itemId);
-                await saveToAPI();
-                displayMyList();
-                showMessage('Item removed successfully!', 'success');
-            }
-        }
+    // Remove an item from user's list
+    async function removeItem(itemId) {
+        const userName = document.getElementById('user-name').value.trim();
+        const userKey = userName.toLowerCase().replace(/\s+/g, '-');
 
-        function updateShareLink() {
-            const userName = document.getElementById('user-name').value.trim();
-            if (!userName) {
-                document.getElementById('share-link').textContent = 'Create your list first to get a shareable link!';
-                return;
-            }
-
-            const userKey = userName.toLowerCase().replace(/\s+/g, '-');
-            const baseUrl = window.location.href.split('?')[0];
-            const shareUrl = `${baseUrl}?user=${userKey}`;
-            document.getElementById('share-link').textContent = shareUrl;
-        }
-
-        function copyLink() {
-            const linkText = document.getElementById('share-link').textContent;
-            if (linkText === 'Create your list first to get a shareable link!') {
-                showMessage('Please create your list first!', 'error');
-                return;
-            }
-
-            navigator.clipboard.writeText(linkText).then(() => {
-                showMessage('Link copied to clipboard!', 'success');
-            }).catch(() => {
-                const textArea = document.createElement('textarea');
-                textArea.value = linkText;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-                showMessage('Link copied to clipboard!', 'success');
-            });
-        }
-
-        function updateUserSelector() {
-            const selector = document.getElementById('view-user');
-            selector.innerHTML = '<option value="">Choose a person...</option>';
-            
-            Object.keys(allLists).forEach(userKey => {
-                const option = document.createElement('option');
-                option.value = userKey;
-                option.textContent = allLists[userKey].name;
-                selector.appendChild(option);
-            });
-        }
-
-        function viewUserList() {
-            const selectedUser = document.getElementById('view-user').value;
-            if (!selectedUser) {
-                document.getElementById('view-list').innerHTML = '<div class="empty-state">Select a person to view their wish list!</div>';
-                return;
-            }
-
-            const userList = allLists[selectedUser];
-            if (!userList || userList.items.length === 0) {
-                document.getElementById('view-list').innerHTML = '<div class="empty-state">This person hasn\'t added any items yet!</div>';
-                return;
-            }
-
-            const itemsHtml = userList.items.map(item => `
-                <div class="wish-item priority-${item.priority} ${item.purchased ? 'purchased' : ''}">
-                    ${item.purchased ? '<div class="purchased-badge">✓ Purchased</div>' : ''}
-                    <h3>${item.name}</h3>
-                    ${item.description ? `<p><strong>Description:</strong> ${item.description}</p>` : ''}
-                    ${item.price ? `<p class="price">Price: ${item.price}</p>` : ''}
-                    ${item.link ? `<a href="${item.link}" target="_blank" class="link">Buy This Item</a>` : ''}
-                    <p><strong>Priority:</strong> ${item.priority.charAt(0).toUpperCase() + item.priority.slice(1)}</p>
-                    <p><strong>List:</strong> ${item.listType.charAt(0).toUpperCase() + item.listType.slice(1)}</p>
-                    ${!item.purchased ? `<button class="mark-purchased" onclick="markPurchased('${selectedUser}', ${item.id})">Mark as Purchased</button>` : ''}
-                </div>
-            `).join('');
-
-            document.getElementById('view-list').innerHTML = `
-                <h3>${userList.name}'s Wish List</h3>
-                ${itemsHtml}
-            `;
-        }
-
-        async function markPurchased(userKey, itemId) {
-            const userList = allLists[userKey];
-            const item = userList.items.find(item => item.id === itemId);
-            if (item) {
-                item.purchased = true;
-                item.purchasedAt = new Date().toISOString();
-                await saveToAPI();
-                viewUserList();
-                showMessage('Item marked as purchased!', 'success');
-            }
-        }
-
-        function handleUrlParams() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const userId = urlParams.get('user');
-            
-            if (userId && allLists[userId]) {
-                // Switch to view mode automatically when someone clicks a shared link
-                const viewBtn = document.querySelector('.mode-btn:nth-child(2)');
-                viewBtn.click();
-                document.getElementById('view-user').value = userId;
-                viewUserList();
-            }
-        }
-
-        document.getElementById('user-name').addEventListener('input', function() {
-            updateShareLink();
+        if (allLists[userKey]) {
+            allLists[userKey].items = allLists[userKey].items.filter(item => item.id !== itemId);
+            await saveToAPI();
             displayMyList();
-        });
+            showMessage('Item removed successfully!', 'success');
+        }
+    }
 
-        // Initialize app when page loads
-        initApp();
-    </script>
-</body>
-</html>
+    // Update the shareable link shown to user
+    function updateShareLink() {
+        const userName = document.getElementById('user-name').value.trim();
+        if (!userName) {
+            document.getElementById('share-link').textContent = 'Create your list first to get a shareable link!';
+            return;
+        }
+        const userKey = userName.toLowerCase().replace(/\s+/g, '-');
+        const baseUrl = window.location.href.split('?')[0];
+        const shareUrl = `${baseUrl}?user=${userKey}`;
+        document.getElementById('share-link').textContent = shareUrl;
+    }
+
+    // Copy the shareable link to clipboard
+    function copyLink() {
+        const linkText = document.getElementById('share-link').textContent;
+        if (linkText === 'Create your list first to get a shareable link!') {
+            showMessage('Please create your list first!', 'error');
+            return;
+        }
+        navigator.clipboard.writeText(linkText).then(() => {
+            showMessage('Link copied to clipboard!', 'success');
+        }).catch(() => {
+            // fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = linkText;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            showMessage('Link copied to clipboard!', 'success');
+        });
+    }
+
+    // Populate the user dropdown for viewing lists
+    function updateUserSelector() {
+        const selector = document.getElementById('view-user');
+        selector.innerHTML = '<option value="">Choose a person...</option>';
+
+        Object.keys(allLists).forEach(userKey => {
+            const option = document.createElement('option');
+            option.value = userKey;
+            option.textContent = allLists[userKey].name;
+            selector.appendChild(option
