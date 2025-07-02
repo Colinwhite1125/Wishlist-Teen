@@ -1,8 +1,131 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+<html lang="en"><head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.13/html-to-image.min.js" integrity="sha512-iZ2ORl595Wx6miw+GuadDet4WQbdSWS3JLMoNfY8cRGoEFy6oT3G9IbcrBeL6AfkgpA51ETt/faX6yLV+/gFJg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+      (function() {
+        const originalConsole = window.console;
+        window.console = {
+          log: (...args) => {
+            originalConsole.log(...args);
+            window.parent.postMessage({ type: 'console', message: args.join(' ') }, '*');
+          },
+          error: (...args) => {
+            originalConsole.error(...args);
+            window.parent.postMessage({ type: 'console', message: 'Error: ' + args.join(' ') }, '*');
+          },
+          warn: (...args) => {
+            originalConsole.warn(...args);
+            window.parent.postMessage({ type: 'console', message: 'Warning: ' + args.join(' ') }, '*');
+          }
+        };
+
+        let requestId = 0;
+        let callbacksMap = new Map();
+        window.claude = {
+          complete: (prompt) => {
+            return new Promise((resolve, reject) => {
+              const id = requestId++;
+              callbacksMap.set(id, { resolve, reject });
+              window.parent.postMessage({ type: 'claudeComplete', id, prompt }, '*');
+            });
+          }
+        };
+
+        // Override global fetch
+        window.fetch = (url, init = {}) => {
+          return new Promise((resolve, reject) => {
+            const id = requestId++;
+            callbacksMap.set(id, { resolve, reject });
+            window.parent.postMessage({
+              type: 'proxyFetch',
+              id,
+              url,
+              init,
+            }, '*');
+          });
+        };
+
+        window.addEventListener('message', async (event) => {
+          if (event.data.type === 'takeScreenshot') {
+            const rootElement = document.getElementById('artifacts-component-root-html');
+            if (!rootElement) {
+              window.parent.postMessage({
+                type: 'screenshotError',
+                error: new Error('Root element not found'),
+              }, '*');
+            }
+            const screenshot = await htmlToImage.toPng(rootElement, {
+              imagePlaceholder:
+                "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAA1JREFUGFdjePDgwX8ACOQDoNsk0PMAAAAASUVORK5CYII=",
+            });
+            window.parent.postMessage({
+              type: 'screenshotData',
+              data: screenshot,
+            }, '*');
+          } else if (event.data.type === 'claudeComplete') {
+            const callback = callbacksMap.get(event.data.id);
+            if (event.data.error) {
+              callback.reject(new Error(event.data.error));
+            } else {
+              callback.resolve(event.data.completion);
+            }
+            callbacksMap.delete(event.data.id);
+          } else if (event.data.type === 'proxyFetchResponse') {
+            const callback = callbacksMap.get(event.data.id);
+            if (event.data.error) {
+              callback.reject(new Error(event.data.error));
+            } else {
+              callback.resolve(new Response(event.data.body, {
+                status: event.data.status,
+                statusText: event.data.statusText,
+                headers: event.data.headers
+              }));
+            }
+            callbacksMap.delete(event.data.id);
+          }
+        });
+
+        window.addEventListener('click', (event) => {
+          const isEl = event.target instanceof HTMLElement;
+          if (!isEl) return;
+    
+          // find ancestor links
+          const linkEl = event.target.closest("a");
+          if (!linkEl || !linkEl.href) return;
+    
+          event.preventDefault();
+          event.stopImmediatePropagation();
+    
+          let linkUrl;
+          try {
+            linkUrl = new URL(linkEl.href);
+          } catch (error) {
+            return;
+          }
+    
+          if (linkUrl.hostname === window.location.hostname) return;
+    
+          window.parent.postMessage({
+            type: 'openExternal',
+            href: linkEl.href,
+          }, '*');
+      });
+
+        const originalOpen = window.open;
+        window.open = function (url) {
+          window.parent.postMessage({
+            type: "openExternal",
+            href: url,
+          }, "*");
+        };
+
+        window.addEventListener('error', (event) => {
+          window.parent.postMessage({ type: 'console', message: 'Uncaught Error: ' + event.message }, '*');
+        });
+      })();
+    </script>
+  
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>🎁 Wish List 🎄</title>
     <style>
         * {
@@ -197,13 +320,16 @@
         }
     </style>
 </head>
-<body>
+<body id="artifacts-component-root-html">
     <div class="container">
+        <div style="position: absolute; top: 10px; right: 10px;">
+            <button class="btn" onclick="copyCode()" style="font-size: 12px; padding: 8px 16px;">Copy Code</button>
+        </div>
         <h1>🎁 Wish List 🎄</h1>
 
-        <div class="loading" id="loading">Setting up your wish list...</div>
+        <div class="loading" id="loading" style="display: none;">Setting up your wish list...</div>
 
-        <div id="main-content" style="display:none;">
+        <div id="main-content" style="display: block;">
             <div class="mode-selector">
                 <button class="mode-btn active" onclick="switchMode('create')">Create My List</button>
                 <button class="mode-btn" onclick="switchMode('view')">View Wish Lists</button>
@@ -213,7 +339,7 @@
             <div id="create-section" class="section active">
                 <div class="form-group">
                     <label for="user-name">Your Name:</label>
-                    <input type="text" id="user-name" placeholder="Enter your name" onchange="updateShareLink()" />
+                    <input type="text" id="user-name" placeholder="Enter your name" onchange="updateShareLink()">
                 </div>
 
                 <div class="form-group">
@@ -228,7 +354,7 @@
 
                 <div class="form-group">
                     <label for="item-name">Item Name:</label>
-                    <input type="text" id="item-name" placeholder="What do you want?" />
+                    <input type="text" id="item-name" placeholder="What do you want?">
                 </div>
 
                 <div class="form-group">
@@ -238,19 +364,19 @@
 
                 <div class="form-group">
                     <label for="item-price">Price:</label>
-                    <input type="text" id="item-price" placeholder="$0.00" />
+                    <input type="text" id="item-price" placeholder="$0.00">
                 </div>
 
                 <div class="form-group">
                     <label for="item-link">Link (where to buy):</label>
-                    <input type="url" id="item-link" placeholder="https://..." />
+                    <input type="url" id="item-link" placeholder="https://...">
                 </div>
 
                 <div class="form-group">
                     <label for="item-priority">Priority:</label>
                     <select id="item-priority">
                         <option value="high">High - Really want this!</option>
-                        <option value="medium" selected>Medium - Would be nice</option>
+                        <option value="medium" selected="">Medium - Would be nice</option>
                         <option value="low">Low - Just an idea</option>
                     </select>
                 </div>
@@ -276,9 +402,7 @@
             <div id="view-section" class="section">
                 <div class="form-group">
                     <label for="view-user">Select Person's List:</label>
-                    <select id="view-user" onchange="viewUserList()">
-                        <option value="">Choose a person...</option>
-                    </select>
+                    <select id="view-user" onchange="viewUserList()"><option value="">Choose a person...</option></select>
                 </div>
 
                 <div id="view-list" class="empty-state">Select a person to view their wish list!</div>
@@ -290,32 +414,57 @@
     let allLists = {};
     let currentUser = '';
     let currentMode = 'create';
+    let lastSavedUser = ''; // Track the last user to restore their session
 
     // Save all lists to localStorage
-    function saveToAPI() {
-        return new Promise((resolve) => {
+    function saveToStorage() {
+        try {
             localStorage.setItem('wishlistData', JSON.stringify(allLists));
-            setTimeout(resolve, 100);
-        });
+            localStorage.setItem('lastUser', currentUser);
+            return true;
+        } catch (error) {
+            console.error('Failed to save to localStorage:', error);
+            return false;
+        }
     }
 
     // Load all lists from localStorage
-    function loadFromAPI() {
-        return new Promise((resolve) => {
+    function loadFromStorage() {
+        try {
             const saved = localStorage.getItem('wishlistData');
             if (saved) {
                 allLists = JSON.parse(saved);
             }
-            setTimeout(resolve, 100);
-        });
+            
+            const savedUser = localStorage.getItem('lastUser');
+            if (savedUser) {
+                lastSavedUser = savedUser;
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('Failed to load from localStorage:', error);
+            return false;
+        }
+    }
+
+    // Restore user session after page load
+    function restoreUserSession() {
+        if (lastSavedUser) {
+            document.getElementById('user-name').value = lastSavedUser;
+            currentUser = lastSavedUser;
+            displayMyList();
+            updateShareLink();
+        }
     }
 
     // Show/hide loading, load data, show main content
     async function initApp() {
-        await loadFromAPI();
+        loadFromStorage();
         document.getElementById('loading').style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
         updateUserSelector();
+        restoreUserSession();
         handleUrlParams();
     }
 
@@ -357,7 +506,7 @@
     }
 
     // Add new item to user's list
-    async function addItem() {
+    function addItem() {
         const userName = document.getElementById('user-name').value.trim();
         const listType = document.getElementById('list-type').value;
         const itemName = document.getElementById('item-name').value.trim();
@@ -404,19 +553,23 @@
 
             allLists[userKey].items.push(newItem);
 
-            await saveToAPI();
+            if (saveToStorage()) {
+                // Clear form
+                document.getElementById('item-name').value = '';
+                document.getElementById('item-description').value = '';
+                document.getElementById('item-price').value = '';
+                document.getElementById('item-link').value = '';
+                document.getElementById('item-priority').value = 'medium';
 
-            // Clear form
-            document.getElementById('item-name').value = '';
-            document.getElementById('item-description').value = '';
-            document.getElementById('item-price').value = '';
-            document.getElementById('item-link').value = '';
-            document.getElementById('item-priority').value = 'medium';
-
-            displayMyList();
-            updateShareLink();
-            showMessage('Item added successfully!', 'success');
-        } catch {
+                displayMyList();
+                updateShareLink();
+                updateUserSelector(); // Update the dropdown in case this is a new user
+                showMessage('Item added successfully!', 'success');
+            } else {
+                showMessage('Error saving item. Please try again.', 'error');
+            }
+        } catch (error) {
+            console.error('Error adding item:', error);
             showMessage('Error adding item. Please try again.', 'error');
         } finally {
             addBtn.disabled = false;
@@ -427,7 +580,10 @@
     // Display current user's list on page
     function displayMyList() {
         const userName = document.getElementById('user-name').value.trim();
-        if (!userName) return;
+        if (!userName) {
+            document.getElementById('my-items').innerHTML = '<div class="empty-state">No items in your list yet!</div>';
+            return;
+        }
 
         const userKey = userName.toLowerCase().replace(/\s+/g, '-');
         const userList = allLists[userKey];
@@ -455,15 +611,18 @@
     }
 
     // Remove an item from user's list
-    async function removeItem(itemId) {
+    function removeItem(itemId) {
         const userName = document.getElementById('user-name').value.trim();
         const userKey = userName.toLowerCase().replace(/\s+/g, '-');
 
         if (allLists[userKey]) {
             allLists[userKey].items = allLists[userKey].items.filter(item => item.id !== itemId);
-            await saveToAPI();
-            displayMyList();
-            showMessage('Item removed successfully!', 'success');
+            if (saveToStorage()) {
+                displayMyList();
+                showMessage('Item removed successfully!', 'success');
+            } else {
+                showMessage('Error removing item. Please try again.', 'error');
+            }
         }
     }
 
@@ -474,10 +633,17 @@
             document.getElementById('share-link').textContent = 'Create your list first to get a shareable link!';
             return;
         }
+        
+        currentUser = userName;
+        saveToStorage(); // Save the current user
+        
         const userKey = userName.toLowerCase().replace(/\s+/g, '-');
         const baseUrl = window.location.href.split('?')[0];
         const shareUrl = `${baseUrl}?user=${userKey}`;
         document.getElementById('share-link').textContent = shareUrl;
+        
+        // Update the display when user changes their name
+        displayMyList();
     }
 
     // Copy the shareable link to clipboard
@@ -504,6 +670,7 @@
     // Populate the user dropdown for viewing lists
     function updateUserSelector() {
         const selector = document.getElementById('view-user');
+        const currentValue = selector.value; // Preserve current selection
         selector.innerHTML = '<option value="">Choose a person...</option>';
 
         Object.keys(allLists).forEach(userKey => {
@@ -512,6 +679,11 @@
             option.textContent = allLists[userKey].name;
             selector.appendChild(option);
         });
+        
+        // Restore selection if it still exists
+        if (currentValue && allLists[currentValue]) {
+            selector.value = currentValue;
+        }
     }
 
     // View a specific user's list
@@ -549,20 +721,42 @@
     }
 
     // Mark an item as purchased
-    async function markPurchased(itemId, userKey) {
+    function markPurchased(itemId, userKey) {
         if (allLists[userKey]) {
             const item = allLists[userKey].items.find(item => item.id === itemId);
             if (item) {
                 item.purchased = true;
-                await saveToAPI();
-                viewUserList();
-                showMessage('Item marked as purchased!', 'success');
+                if (saveToStorage()) {
+                    viewUserList();
+                    showMessage('Item marked as purchased!', 'success');
+                } else {
+                    showMessage('Error marking item as purchased. Please try again.', 'error');
+                }
             }
         }
+    }
+
+    // Copy the entire HTML code to clipboard
+    function copyCode() {
+        const htmlContent = document.documentElement.outerHTML;
+        navigator.clipboard.writeText(htmlContent).then(() => {
+            showMessage('Full HTML code copied to clipboard!', 'success');
+        }).catch(() => {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = htmlContent;
+            textArea.style.position = 'fixed';
+            textArea.style.opacity = '0';
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            showMessage('Full HTML code copied to clipboard!', 'success');
+        });
     }
 
     // Initialize the app when page loads
     window.addEventListener('load', initApp);
 </script>
-</body>
-</html>
+
+</body></html>
