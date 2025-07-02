@@ -213,7 +213,7 @@
             <div id="create-section" class="section active">
                 <div class="form-group">
                     <label for="user-name">Your Name:</label>
-                    <input type="text" id="user-name" placeholder="Enter your name" />
+                    <input type="text" id="user-name" placeholder="Enter your name" onchange="updateShareLink()" />
                 </div>
 
                 <div class="form-group">
@@ -319,11 +319,23 @@
         handleUrlParams();
     }
 
+    // Handle URL parameters for sharing
+    function handleUrlParams() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const userParam = urlParams.get('user');
+        
+        if (userParam && allLists[userParam]) {
+            switchMode('view');
+            document.getElementById('view-user').value = userParam;
+            viewUserList();
+        }
+    }
+
     // Switch between create/view modes
     function switchMode(mode) {
         currentMode = mode;
         document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
-        event.target.classList.add('active');
+        document.querySelector(`[onclick="switchMode('${mode}')"]`).classList.add('active');
         document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
         document.getElementById(mode + '-section').classList.add('active');
 
@@ -498,4 +510,59 @@
             const option = document.createElement('option');
             option.value = userKey;
             option.textContent = allLists[userKey].name;
-            selector.appendChild(option
+            selector.appendChild(option);
+        });
+    }
+
+    // View a specific user's list
+    function viewUserList() {
+        const selectedUser = document.getElementById('view-user').value;
+        const viewListDiv = document.getElementById('view-list');
+
+        if (!selectedUser) {
+            viewListDiv.innerHTML = '<div class="empty-state">Select a person to view their wish list!</div>';
+            return;
+        }
+
+        const userList = allLists[selectedUser];
+        if (!userList || userList.items.length === 0) {
+            viewListDiv.innerHTML = `<div class="empty-state">${userList ? userList.name : 'This person'} hasn't added any items yet!</div>`;
+            return;
+        }
+
+        const itemsHtml = userList.items
+            .filter(item => !item.purchased)
+            .map(item => `
+                <div class="wish-item priority-${item.priority}">
+                    <h3>${item.name}</h3>
+                    ${item.description ? `<p><strong>Description:</strong> ${item.description}</p>` : ''}
+                    ${item.price ? `<p class="price">Price: ${item.price}</p>` : ''}
+                    ${item.link ? `<a href="${item.link}" target="_blank" class="link">View Item</a>` : ''}
+                    <p><strong>Priority:</strong> ${item.priority.charAt(0).toUpperCase() + item.priority.slice(1)}</p>
+                    <p><strong>List:</strong> ${item.listType.charAt(0).toUpperCase() + item.listType.slice(1)}</p>
+                    <button class="btn" onclick="markPurchased(${item.id}, '${selectedUser}')" style="background: #2ed573; margin-top: 10px;">Mark as Purchased</button>
+                </div>
+            `).join('');
+
+        const listTitle = `<h3>${userList.name}'s Wish List</h3>`;
+        viewListDiv.innerHTML = listTitle + (itemsHtml || '<div class="empty-state">All items have been purchased! 🎉</div>');
+    }
+
+    // Mark an item as purchased
+    async function markPurchased(itemId, userKey) {
+        if (allLists[userKey]) {
+            const item = allLists[userKey].items.find(item => item.id === itemId);
+            if (item) {
+                item.purchased = true;
+                await saveToAPI();
+                viewUserList();
+                showMessage('Item marked as purchased!', 'success');
+            }
+        }
+    }
+
+    // Initialize the app when page loads
+    window.addEventListener('load', initApp);
+</script>
+</body>
+</html>
